@@ -1,0 +1,10 @@
+pyomo
+pandas
+numpy
+matplotlib
+xlrd
+openpyxl
+plotly
+scikit-learn
+keras
+statsmodels
