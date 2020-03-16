@@ -1,0 +1,4 @@
+- Now scenario trees can be generated
+- Start building the jupyter notebook
+- Code cleanup
+

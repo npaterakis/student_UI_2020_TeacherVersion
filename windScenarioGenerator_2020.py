@@ -18,7 +18,7 @@ numpy.random.seed(10)
 turbineRatedPower = 2500 # in kW
 windfarmRatedPower = 25000 #in kW
 periodsFuture, periodsPast, daysHistory, numScenarios = 144, (144*3), 10, 30
-firstDateTest = '2020-02-08 00:00:00'
+firstDateTest = '2020-02-09 00:00:00'
 firstDateTrain = pandas.to_datetime(firstDateTest)-pandas.Timedelta(str(daysHistory)+'D')
 
 featureSelection = True
