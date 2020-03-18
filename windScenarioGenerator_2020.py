@@ -1,36 +1,30 @@
-from keras import backend as K
-
-import numpy, pandas
-import matplotlib.pyplot as plt
+import numpy
+import pandas
 from sklearn.preprocessing import *
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.feature_selection import mutual_info_regression, RFE
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from scripts.forecastingUtils.foreUtils_2020 import *
 from scripts.forecastingUtils.foreDisplays_2020 import *
 numpy.random.seed(10)
 
-
 # ---------------------------------------------------------------------------------------------
 # -- Basic settings
 # ---------------------------------------------------------------------------------------------
+inputFileName = 'windSpeed_2020.csv' #Change this to the most updated file
 turbineRatedPower = 2500 # in kW
 windfarmRatedPower = 25000 #in kW
-periodsFuture, periodsPast, daysHistory, numScenarios = 144, (144*3), 10, 30
-firstDateTest = '2020-02-09 00:00:00'
+periodsFuture, periodsPast, daysHistory, numScenarios = 144, (144*3), 30, 30
+firstDateTest = '2020-02-10 00:00:00' #Change this to the date for which you need the forecast
 firstDateTrain = pandas.to_datetime(firstDateTest)-pandas.Timedelta(str(daysHistory)+'D')
 
 featureSelection = True
 plotResidualDiagnostics = False
 scenarios = numpy.zeros((numScenarios, periodsFuture)) #initialize matrix of scenarios
 
+#Input/output paths -- do not change
 inputDataDir = 'data/'
-inputFileName = 'windSpeed_2020.csv' #TODO filenames
 outputDataDir = 'data/'
 outputDataDir1 = firstDateTest.split(' ')[0]
 outputFilename = 'wind_'+outputDataDir1+'.csv'
-
 
 # ---------------------------------------------------------------------------------------------
 # -- Data preparation
@@ -76,7 +70,6 @@ else:
 
 # Generate scenarios
 for j in range(numScenarios):
-    #print('Generating scenario #: ', j)
     arrayActual, arrayPredicted = forecastForward(testSet, testX, model, scaler, periodsFuture, stdevRes, mask=mask, testY=testY, positivityRequirement=True)
 
     arrayActual, arrayPredicted = scaler.inverse_transform(arrayActual), scaler.inverse_transform(arrayPredicted)
@@ -86,9 +79,6 @@ plot_windSpeedScenarios(scenarios, arrayActual)
 scenariosPower = powerG126(scenarios)
 actualPower = powerG126(arrayActual.reshape(1,-1))
 plot_windPowerScenarios(scenariosPower, actualPower)
-
-print(numpy.sqrt(mean_squared_error(actualPower[0,:], numpy.mean(scenariosPower, axis=0)))/turbineRatedPower)
-print(numpy.sqrt(mean_squared_error(actualPower[0,:], numpy.median(scenariosPower, axis=0)))/turbineRatedPower)
 
 from scripts.generalUtils_2020 import *
 outputDir = createDataDirectory(outputDataDir, outputDataDir1)

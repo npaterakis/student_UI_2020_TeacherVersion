@@ -32,7 +32,8 @@ def generateScenarioTree(topDir, dirName):
 
     #Wind
     wind = pandas.read_csv(dir+'/wind_'+dirName+ '.csv')
-    wind_prob = pandas.Series(data = [1/len(wind.index) for s in range(len(wind.index))], index = wind.index) #load appropriate file if not equiprobable
+    # If wind scenarios are not equiprobable, replace the following line to load the appropriate file
+    wind_prob = pandas.Series(data = [1/len(wind.index) for s in range(len(wind.index))], index = wind.index)
 
     numScen = len(im.index) * len(wind.index)
 

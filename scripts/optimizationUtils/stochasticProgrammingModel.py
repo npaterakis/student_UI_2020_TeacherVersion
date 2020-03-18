@@ -9,7 +9,7 @@ def stochasticRisk(DApriceFC, WGScen, IMplus, IMminus, probs, alpha, beta):
     model.S = Set(ordered=True, initialize= WGScen.index)
 
     #Define and initialize parameters
-    model.Pcap     = Param(within=NonNegativeReals, initialize= 20) #wind-farm installed capacity in MW !!! DO NOT CHANGE!
+    model.Pcap     = Param(within=NonNegativeReals, initialize= 25) #wind-farm installed capacity in MW !!! DO NOT CHANGE!
     model.P_W_DA   = Param(model.T, model.S, within=NonNegativeReals, mutable=True) #wind power scenarios in MW
     model.Price_DA = Param(model.T, within=NonNegativeReals, mutable=True, initialize=DApriceFC['DAP'].to_dict()) #day-ahead market price in Euros/MWh
     model.dplus    = Param(model.T, model.S, within=Reals, mutable=True)  # modifier positive imbalance

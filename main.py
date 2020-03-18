@@ -1,28 +1,30 @@
-#TODO: 1) a tool to combine the scenarios must be created (input only wind scenarios)
-#TODO: 2) a tool to create the whole input file must be created (or not?)
-#TODO: 3) check the fc tool
-
 from scripts.optimizationUtils.stochasticProgrammingModel import *
 from scripts.optimizationUtils.reportingUtils import *
 from scripts.optimizationUtils.plotUtils import *
 
+firstDateTest = '2020-02-10 00:00:00'  #TODO, in the jupyter it will be integrated
+folderName = firstDateTest.split(' ')[0]
+
 #--- Define basic I/O data
-inputFileName = 'data/input2.xlsx'
-outputDir = 'reports/'
-reportFileName = outputDir+'Report_1.xlsx'
-bidFileName = outputDir+'Bid_1.csv'
+fileDAP = 'data/'+str(folderName)+'/DAP_'+str(folderName)+'.csv'
+fileImNeg = 'data/'+str(folderName)+'/tree_imNeg_'+str(folderName)+'.csv'
+fileImPos = 'data/'+str(folderName)+'/tree_imPos_'+str(folderName)+'.csv'
+fileWind = 'data/'+str(folderName)+'/tree_wind_'+str(folderName)+'.csv'
+fileProbs = 'data/'+str(folderName)+'/tree_probs_'+str(folderName)+'.csv'
 
+outDir = 'data/'+str(folderName)+'/'
+reportFileName = outDir+'report_'+str(folderName)+'.xlsx'
+bidFileName = outDir+'bid_'+str(folderName)+'.csv'
 
+#--- Load data
+daP = pandas.read_csv(fileDAP, index_col=0)
+wind = pandas.read_csv(fileWind, index_col=0)
+rPlus = pandas.read_csv(fileImPos, index_col=0)
+rMinus = pandas.read_csv(fileImNeg, index_col=0)
+probs = pandas.read_csv(fileProbs, index_col=0)
 
-daP     = pandas.read_excel(inputFileName, sheet_name='DAP', index_col=0)
-wind    = pandas.read_excel(inputFileName, sheet_name='Wind', index_col=0)
-rPlus   = pandas.read_excel(inputFileName, sheet_name='rplus', index_col=0)
-rMinus  = pandas.read_excel(inputFileName, sheet_name='rminus', index_col=0)
-probs   = pandas.read_excel(inputFileName, sheet_name='probs', index_col=0)
-
-a, b = stochasticRisk(daP, wind, rPlus, rMinus, probs, 0.95, 0.9)
-
-
+#Execute optimization model
+a, b = stochasticRisk(daP, wind, rPlus, rMinus, probs, 0.95, 0.1)
 
 displayReport(b)
 saveReport(b, reportFileName, bidFileName)

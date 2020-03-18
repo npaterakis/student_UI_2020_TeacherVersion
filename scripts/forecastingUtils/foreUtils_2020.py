@@ -157,7 +157,9 @@ def forecastForward(testSet, testX, model, scaler, periodsFuture, stdev, mask = 
         else:
             y_hat = model.predict(x) + numpy.random.normal(0, stdev, 1)
 
-        list_actual.append(float(y_actual))
+        if type(testY) != type(None):
+            list_actual.append(float(y_actual))
+
         list_predicted.append(float(y_hat))
 
         if t_in == periodsFuture - 1:
