@@ -2,6 +2,9 @@ import pandas, numpy
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.feature_selection import RFE, mutual_info_regression
+from sklearn.ensemble import AdaBoostRegressor
+import matplotlib.pyplot as plt
+from pandas.plotting import autocorrelation_plot
 
 def powerG126(speed):
     power = numpy.zeros(speed.shape)
@@ -21,10 +24,10 @@ def powerG126(speed):
                 print(t, s, speed[s,t])
                 raise ValueError
 
-    #Dates here are artificial in order to resample the dataframe
     powerDf = pandas.DataFrame(index=['s'+str(s) for s in range(1,power.shape[0]+1)], columns=pandas.date_range('2015-01-01 00:00', periods=power.shape[1], freq='10min'), data=power)
     powerH = powerDf.T.resample('H').mean().T
 
+    #print(powerH)
     return powerH.values
 
 def createDataSet(dfIn, periodsPast):
@@ -77,9 +80,11 @@ def feature_selection(trainX, trainY, method='rfe'):
         mask = importances.argsort()[-144:][::-1]
 
     if method == 'rfe':
+        #estimator = RandomForestRegressor(n_estimators=10, n_jobs=-1)
         estimator = LinearRegression(fit_intercept=True)
         selector = RFE(estimator, 6*5, 50, verbose=2).fit(trainX, trainY)
         mask = selector.support_
+
 
     return mask
 
@@ -89,14 +94,24 @@ def createPredictionModel(trainX, trainY, method = 'LR'):
     if method == 'LR':
         model = LinearRegression(fit_intercept=True)
 
+    elif method == 'Ridge':
+        model = Ridge(5)
+
     elif method == 'keras':
-        pass #implement yourself?
+        from keras.models import Sequential
+        from keras.layers import Dense, Dropout
+        model = Sequential()
+        model.add(Dense(units=3, activation='relu', input_dim=trainX.shape[1]))
+        model.add(Dropout(0.01))
+        model.add(Dense(units=1))
+        model.compile(loss='mse', optimizer='adam')
+
 
     else:
         print('Unknown model! Implement yourself?')
         raise ValueError()
 
-    model.fit(trainX, trainY)
+    model.fit(trainX, trainY)#, epochs=50, verbose=2) #do not use model = when using keras
 
     res = model.predict(trainX) - trainY  # calculate residuals
     stdevRes = res.std()  # calculate the standard deviation of the residuals
@@ -104,6 +119,10 @@ def createPredictionModel(trainX, trainY, method = 'LR'):
     return model, res, stdevRes
 
 def forecastForward(testSet, testX, model, scaler, periodsFuture, stdev, mask = None, testY = None, positivityRequirement=True):
+    #if positivityRequirement:
+    #    print('Positivity of the outcome is enforced!')
+    #else:
+    #    print('Positivity of the outcome is NOT enforced!')
 
     list_actual, list_predicted = [], []
 
